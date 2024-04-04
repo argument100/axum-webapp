@@ -13,7 +13,8 @@ async fn main() {
         .route("/", axum::routing::get(handler_top))
         .route("/usr/:id/:user", axum::routing::get(handler_param))
         .route("/qry", axum::routing::get(handler_query))
-        .route("/json/:id", axum::routing::get(handler_json));
+        .route("/json/:id", axum::routing::get(handler_json))
+        .route("/top", axum::routing::get(handler_index));
 
     axum::Server::bind(&"127.0.0.1:3000".parse().unwrap())
         .serve(app.into_make_service())
@@ -43,4 +44,15 @@ async fn handler_json(axum::extract::Path(id): axum::extract::Path<usize>) -> ax
     let item = &data[id];
     let data = serde_json::json!(item);
     axum::Json(data)
+}
+
+async fn handler_index()-> axum::response::Html<String> {
+    let tera = tera::Tera::new("templates/*").unwrap();
+
+    let mut context = tera::Context::new();
+    context.insert("title", "Index page");
+    context.insert("message", "これはサンプルです。");
+
+    let output = tera.render("index.html", &context);
+    axum::response::Html(output.unwrap())
 }
