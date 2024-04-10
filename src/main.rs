@@ -7,6 +7,12 @@ struct Mydata {
     age: u32,
 }
 
+#[derive(Serialize, Deserialize)]
+struct Myform {
+    name: String,
+    mail: String,
+}
+
 #[tokio::main]
 async fn main() {
     let app = axum::Router::new()
@@ -14,7 +20,8 @@ async fn main() {
         .route("/usr/:id/:user", axum::routing::get(handler_param))
         .route("/qry", axum::routing::get(handler_query))
         .route("/json/:id", axum::routing::get(handler_json))
-        .route("/top", axum::routing::get(handler_index));
+        .route("/top", axum::routing::get(handler_index))
+        .route("/post", axum::routing::post(handler_post));
 
     axum::Server::bind(&"127.0.0.1:3000".parse().unwrap())
         .serve(app.into_make_service())
@@ -52,6 +59,18 @@ async fn handler_index()-> axum::response::Html<String> {
     let mut context = tera::Context::new();
     context.insert("title", "Index page");
     context.insert("message", "これはサンプルです。");
+
+    let output = tera.render("index.html", &context);
+    axum::response::Html(output.unwrap())
+}
+
+async fn handler_post(axum::Form(myform): axum::Form<Myform>) -> axum::response::Html<String> {
+    let msg = format!("I am {}<{}>.", myform.name, myform.mail);
+    let tera = tera::Tera::new("templates/*").unwrap();
+
+    let mut context = tera::Context::new();
+    context.insert("title", "Index page");
+    context.insert("message", &msg);
 
     let output = tera.render("index.html", &context);
     axum::response::Html(output.unwrap())
