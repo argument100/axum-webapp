@@ -22,5 +22,12 @@
         </div>
         <input type="submit" class="btn btn-primary" value="Submit">
     </form>
+    <div class="border border-primary p-3 my-3">
+        {% set v1 = value * 1.08 %}
+        {% set v2 = value * 1.1 %}
+        <p class="my-2">value: {{ value }}</p>
+        <p class="my-2">value1: {{ v1 }}</p>
+        <p class="my-2">value2: {{ v2 }}</p>
+    </div>
 </body>
 </html>
